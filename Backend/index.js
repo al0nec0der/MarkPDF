@@ -3,6 +3,7 @@ const cors = require('cors');
 require('dotenv').config();
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
+const fileRoutes = require('./routes/fileRoutes');
 
 // Connect to database
 connectDB();
@@ -13,6 +14,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
+app.use('/api/files', fileRoutes);
+
+app.use('/uploads', express.static('uploads'));
 
 app.get('/', (req, res) => {
   res.json({ message: 'API is running!' });
