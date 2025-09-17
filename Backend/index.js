@@ -5,6 +5,7 @@ const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const highlightRoutes = require('./routes/highlightRoutes');
+const { errorHandler } = require('./middleware/errorHandler');
 
 // Connect to database
 connectDB();
@@ -23,6 +24,8 @@ app.use('/uploads', express.static('uploads'));
 app.get('/', (req, res) => {
   res.json({ message: 'API is running!' });
 });
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 5001;
 

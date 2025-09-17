@@ -8,8 +8,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <div>
-      <h1>MarkPDF</h1>
+    <main>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -30,7 +29,7 @@ function App() {
           }
         />
       </Routes>
-    </div>
+    </main>
   );
 }
 
