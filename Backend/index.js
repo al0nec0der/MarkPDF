@@ -4,6 +4,7 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 const userRoutes = require('./routes/userRoutes');
 const fileRoutes = require('./routes/fileRoutes');
+const highlightRoutes = require('./routes/highlightRoutes');
 
 // Connect to database
 connectDB();
@@ -15,6 +16,7 @@ app.use(express.json());
 
 app.use('/api/users', userRoutes);
 app.use('/api/files', fileRoutes);
+app.use('/api/highlights', highlightRoutes);
 
 app.use('/uploads', express.static('uploads'));
 
