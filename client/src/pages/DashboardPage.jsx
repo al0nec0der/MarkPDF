@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getUserFiles, uploadFile } from '../services/api';
 
 function DashboardPage() {
@@ -46,7 +47,9 @@ function DashboardPage() {
         <h3>Your Files</h3>
         <ul>
           {files.map((file) => (
-            <li key={file.uuid}>{file.originalname}</li>
+            <li key={file.uuid}>
+              <Link to={`/pdf/${file.uuid}`}>{file.originalname}</Link>
+            </li>
           ))}
         </ul>
       </div>

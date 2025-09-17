@@ -15,6 +15,10 @@ api.interceptors.request.use((config) => {
 export const login = (userData) => api.post('/users/login', userData);
 export const register = (userData) => api.post('/users/register', userData);
 export const getUserFiles = () => api.get('/files');
+export const getFileByUuid = (pdfUuid) => api.get(`/files/${pdfUuid}`);
 export const uploadFile = (formData) => api.post('/files/upload', formData);
+export const getHighlights = (pdfUuid) => api.get(`/highlights/${pdfUuid}`);
+export const saveHighlight = (highlightData) => api.post('/highlights', highlightData);
+
 
 export default api;

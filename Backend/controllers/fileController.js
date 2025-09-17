@@ -27,4 +27,16 @@ const getUserFiles = async (req, res) => {
   }
 };
 
-module.exports = { uploadFile, getUserFiles };
+const getFileByUuid = async (req, res) => {
+  try {
+    const file = await PdfFile.findOne({ uuid: req.params.uuid, uploader: req.user._id });
+    if (!file) {
+      return res.status(404).send('File not found');
+    }
+    res.json(file);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+};
+
+module.exports = { uploadFile, getUserFiles, getFileByUuid };
