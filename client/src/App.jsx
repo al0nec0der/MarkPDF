@@ -5,6 +5,7 @@ import RegisterPage from './pages/RegisterPage';
 import DashboardPage from './pages/DashboardPage';
 import ViewerPage from './pages/ViewerPage';
 import ProtectedRoute from './components/ProtectedRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
@@ -24,7 +25,9 @@ function App() {
           path="/viewer"
           element={
             <ProtectedRoute>
-              <ViewerPage />
+              <ErrorBoundary>
+                <ViewerPage />
+              </ErrorBoundary>
             </ProtectedRoute>
           }
         />
@@ -32,7 +35,9 @@ function App() {
           path="/pdf/:pdfUuid"
           element={
             <ProtectedRoute>
-              <ViewerPage />
+              <ErrorBoundary>
+                <ViewerPage />
+              </ErrorBoundary>
             </ProtectedRoute>
           }
         />
