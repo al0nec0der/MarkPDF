@@ -6,6 +6,7 @@ const userRoutes = require('./routes/userRoutes');
 const fileRoutes = require('./routes/fileRoutes');
 const highlightRoutes = require('./routes/highlightRoutes');
 const { errorHandler } = require('./middleware/errorHandler');
+const path = require('path');
 
 // Connect to database
 connectDB();
@@ -19,7 +20,15 @@ app.use('/api/users', userRoutes);
 app.use('/api/files', fileRoutes);
 app.use('/api/highlights', highlightRoutes);
 
-app.use('/uploads', express.static('uploads'));
+// Serve static files with proper headers
+app.use('/uploads', express.static('uploads', {
+  setHeaders: (res, filePath) => {
+    if (filePath.endsWith('.pdf')) {
+      res.setHeader('Content-Type', 'application/pdf');
+      res.setHeader('Content-Disposition', 'inline'); // This ensures PDFs are displayed inline instead of downloaded
+    }
+  }
+}));
 
 app.get('/', (req, res) => {
   res.json({ message: 'API is running!' });

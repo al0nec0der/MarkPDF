@@ -21,6 +21,14 @@ function App() {
           }
         />
         <Route
+          path="/viewer"
+          element={
+            <ProtectedRoute>
+              <ViewerPage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/pdf/:pdfUuid"
           element={
             <ProtectedRoute>

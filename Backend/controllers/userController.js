@@ -17,14 +17,14 @@ const registerUser = asyncHandler(async (req, res) => {
   const { name, email, password } = req.body;
 
   if (!name || !email || !password) {
-    res.status(400).json({ message: 'Please add all fields' });
+    return res.status(400).json({ message: 'Please add all fields' });
   }
 
   // Check if user exists
   const userExists = await User.findOne({ email });
 
   if (userExists) {
-    res.status(400).json({ message: 'User already exists' });
+    return res.status(400).json({ message: 'User already exists' });
   }
 
   // Create user
