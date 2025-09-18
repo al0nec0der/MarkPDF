@@ -1,84 +1,113 @@
-const Highlight = require('../models/highlightModel');
-const PdfFile = require('../models/pdfFileModel');
+// server/controllers/highlightController.js
 
+const Highlight = require("../models/highlightModel");
+const PdfFile = require("../models/pdfFileModel");
+
+/**
+ * @desc    Save a new highlight
+ * @route   POST /api/highlights
+ * @access  Private
+ */
 const saveHighlight = async (req, res) => {
   try {
-    console.log('=== HIGHLIGHT SAVE REQUEST ===');
-    console.log('Request body:', JSON.stringify(req.body, null, 2));
-    console.log('User ID:', req.user?._id);
-    console.log('Headers:', req.headers);
-    
-    const { text, position, pdfUuid } = req.body;
-    
-    // Validate required fields
-    if (!text && !position) {
-      console.log('Missing required fields: text or position');
-      return res.status(400).send('Missing required fields: text or position');
-    }
-    
-    if (!pdfUuid) {
-      console.log('Missing required field: pdfUuid');
-      return res.status(400).send('Missing required field: pdfUuid');
-    }
-    
-    console.log('Looking for PDF file with uuid:', pdfUuid);
-    const pdfFile = await PdfFile.findOne({ uuid: pdfUuid });
+    const { position, content, comment, pdfUuid } = req.body;
 
+    if (!position || !content || !pdfUuid) {
+      return res
+        .status(400)
+        .json({ message: "Missing required highlight data." });
+    }
+
+    const pdfFile = await PdfFile.findOne({
+      uuid: pdfUuid,
+      uploader: req.user._id,
+    });
     if (!pdfFile) {
-      console.log('PDF file not found for uuid:', pdfUuid);
-      return res.status(404).send('PDF file not found');
+      return res
+        .status(404)
+        .json({ message: "PDF file not found for this user." });
     }
 
-    console.log('Found PDF file:', pdfFile._id);
+    // Extract the highlight text from content
+    const highlightText = content.text || " ";
     
-    const highlightData = {
-      text: text || '',
-      position: position || {},
-      pageNumber: (position && position.pageNumber) ? position.pageNumber : 1,
+    // Extract comment text if provided
+    const commentText = comment && comment.text ? comment.text : "";
+
+    const newHighlight = new Highlight({
+      text: commentText || highlightText, // Save comment if exists, otherwise save highlight text
+      position: position,
+      pageNumber: position.pageNumber,
       user: req.user._id,
       pdfFile: pdfFile._id,
-    };
-    
-    console.log('Creating highlight with data:', highlightData);
-    const newHighlight = new Highlight(highlightData);
+    });
+
     const savedHighlight = await newHighlight.save();
-    console.log('Highlight saved successfully:', savedHighlight);
-    res.status(201).json(savedHighlight);
+
+    // After saving, immediately format it correctly before sending back.
+    const formattedHighlight = {
+      id: savedHighlight._id.toString(),
+      content: { text: highlightText }, // Always send back the highlighted text
+      position: savedHighlight.position,
+      comment: { text: commentText, emoji: "" }, // Send back the comment if exists
+    };
+
+    res.status(201).json(formattedHighlight);
   } catch (error) {
-    console.error('=== HIGHLIGHT SAVE ERROR ===');
-    console.error('Error saving highlight:', error);
-    console.error('Error stack:', error.stack);
-    res.status(500).send(error.message);
+    console.error("=== HIGHLIGHT SAVE ERROR ===", error);
+    res
+      .status(500)
+      .json({
+        message: "Server error while saving highlight.",
+        error: error.message,
+      });
   }
 };
 
+/**
+ * @desc    Get all highlights for a specific PDF
+ * @route   GET /api/highlights/:pdfUuid
+ * @access  Private
+ */
 const getHighlightsForPdf = async (req, res) => {
   try {
-    console.log('=== GET HIGHLIGHTS REQUEST ===');
     const { pdfUuid } = req.params;
-    console.log('Fetching highlights for PDF uuid:', pdfUuid);
-    console.log('User ID:', req.user?._id);
-    
-    const pdfFile = await PdfFile.findOne({ uuid: pdfUuid });
 
+    const pdfFile = await PdfFile.findOne({
+      uuid: pdfUuid,
+      uploader: req.user._id,
+    });
     if (!pdfFile) {
-      console.log('PDF file not found for uuid:', pdfUuid);
-      return res.status(404).send('PDF file not found');
+      return res.json([]);
     }
 
-    console.log('Found PDF file for highlights:', pdfFile._id);
-    const highlights = await Highlight.find({
+    const highlightsFromDb = await Highlight.find({
       pdfFile: pdfFile._id,
       user: req.user._id,
     });
 
-    console.log('Found highlights:', highlights.length);
-    res.json(highlights);
+    // THE CRITICAL TRANSFORMATION STEP:
+    // Convert the raw database documents into the format the frontend library needs.
+    const formattedHighlights = highlightsFromDb.map((dbHighlight) => ({
+      id: dbHighlight._id.toString(),
+      content: { text: dbHighlight.text }, // For now, we send the same text in content
+      position: dbHighlight.position,
+      comment: { text: dbHighlight.text, emoji: "" }, // Create a comment object for the popup
+    }));
+
+    res.json(formattedHighlights);
   } catch (error) {
-    console.error('=== GET HIGHLIGHTS ERROR ===');
-    console.error('Error fetching highlights:', error);
-    res.status(500).send(error.message);
+    console.error("=== GET HIGHLIGHTS ERROR ===", error);
+    res
+      .status(500)
+      .json({
+        message: "Server error while fetching highlights.",
+        error: error.message,
+      });
   }
 };
 
-module.exports = { saveHighlight, getHighlightsForPdf };
+module.exports = {
+  saveHighlight,
+  getHighlightsForPdf,
+};

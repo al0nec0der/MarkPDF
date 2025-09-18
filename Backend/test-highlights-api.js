@@ -1,6 +1,15 @@
 const axios = require('axios');
 require('dotenv').config();
 
+// Mock authentication middleware for testing
+const mockAuthMiddleware = (req, res, next) => {
+  // Add a mock user to the request
+  req.user = {
+    _id: 'test-user-id'
+  };
+  next();
+};
+
 // Test the highlights API endpoint
 const testHighlightsAPI = async () => {
   try {
@@ -10,7 +19,7 @@ const testHighlightsAPI = async () => {
     console.log('Getting PDF files...');
     const fileResponse = await axios.get('http://localhost:5001/api/files', {
       headers: {
-        'Authorization': 'Bearer YOUR_TEST_TOKEN_HERE' // Replace with a valid token
+        'Authorization': 'Bearer test-token' // Placeholder token for testing
       }
     });
     
@@ -58,7 +67,7 @@ const testHighlightsAPI = async () => {
       try {
         const getResponse = await axios.get(`http://localhost:5001/api/highlights/${pdfUuid}`, {
           headers: {
-            'Authorization': 'Bearer YOUR_TEST_TOKEN_HERE' // Replace with a valid token
+            'Authorization': 'Bearer test-token' // Placeholder token for testing
           }
         });
         
