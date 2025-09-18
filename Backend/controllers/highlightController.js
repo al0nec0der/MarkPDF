@@ -8,7 +8,7 @@ const saveHighlight = async (req, res) => {
     console.log('User ID:', req.user?._id);
     console.log('Headers:', req.headers);
     
-    const { text, position, pageNumber, pdfUuid } = req.body;
+    const { text, position, pdfUuid } = req.body;
     
     // Validate required fields
     if (!text && !position) {
@@ -34,7 +34,7 @@ const saveHighlight = async (req, res) => {
     const highlightData = {
       text: text || '',
       position: position || {},
-      pageNumber: pageNumber || 1,
+      pageNumber: (position && position.pageNumber) ? position.pageNumber : 1,
       user: req.user._id,
       pdfFile: pdfFile._id,
     };

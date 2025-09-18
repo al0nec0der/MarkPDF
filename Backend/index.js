@@ -13,7 +13,13 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
+// Configure CORS with specific options
+app.use(cors({
+  origin: 'http://localhost:5173', // Allow requests from the frontend
+  credentials: true,
+  optionsSuccessStatus: 200
+}));
+
 app.use(express.json());
 
 app.use('/api/users', userRoutes);

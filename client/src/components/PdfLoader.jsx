@@ -1,73 +1,82 @@
-import React, { useState, useEffect } from 'react';
-import { pdfjs } from 'react-pdf';
+// client/src/components/PdfLoader.jsx
 
-const PdfLoader = ({ url, beforeLoad, onError, children }) => {
+import React, { useState, useEffect, useRef } from "react";
+import { pdfjs } from "react-pdf";
+
+// This is the correct, robust PdfLoader component.
+function PdfLoader({ url, beforeLoad, children, onError }) {
   const [pdfDocument, setPdfDocument] = useState(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const onErrorRef = useRef(onError);
+
+  // Keep the ref updated with the latest onError function
+  useEffect(() => {
+    onErrorRef.current = onError;
+  }, [onError]);
 
   useEffect(() => {
-    let isMounted = true;
-    let pdfDocumentInstance = null;
+    // Reset states when the URL prop changes to handle new documents.
+    setPdfDocument(null);
+    setError(null);
 
-    const loadPdf = async () => {
+    if (!url) {
+      return;
+    }
+
+    let isCancelled = false;
+
+    // Configure the worker dynamically
+    const setupWorker = async () => {
       try {
-        setLoading(true);
-        setError(null);
+        // Use the CDN version to avoid local file issues
+        pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.0.379/pdf.worker.min.js`;
         
-        // Load the PDF document
-        const pdfDoc = await pdfjs.getDocument({
-          url,
-          verbosity: 0
-        }).promise;
+        // Create a new loading task with proper options
+        const loadingTask = pdfjs.getDocument({
+          url: url,
+          withCredentials: true // Handle CORS
+        });
+
+        const loadedPdfDocument = await loadingTask.promise;
         
-        pdfDocumentInstance = pdfDoc;
-        
-        if (isMounted) {
-          setPdfDocument(pdfDoc);
-          setLoading(false);
+        // Only update state if the component is still mounted
+        if (!isCancelled) {
+          setPdfDocument(loadedPdfDocument);
         }
       } catch (err) {
-        if (isMounted) {
-          setLoading(false);
-          setError(err.message);
-          if (onError) {
-            onError(`Failed to load PDF: ${err.message}`);
+        // Only update state if the component is still mounted
+        if (!isCancelled) {
+          const errorMessage = `Failed to load PDF document: ${err.message}`;
+          setError(errorMessage);
+          // Propagate the error to the parent if a callback is provided.
+          if (onErrorRef.current) {
+            onErrorRef.current(errorMessage);
           }
         }
       }
     };
 
-    if (url) {
-      loadPdf();
-    }
+    setupWorker();
 
-    // Cleanup function to destroy the PDF document and prevent memory leaks
+    // Cleanup function - only cancel the loading task, don't destroy it
     return () => {
-      isMounted = false;
-      if (pdfDocumentInstance) {
-        try {
-          // Destroy the PDF document to free up resources
-          pdfDocumentInstance.destroy();
-        } catch (err) {
-          console.warn('Error destroying PDF document:', err);
-        }
-      }
+      isCancelled = true;
     };
-  }, [url, onError]);
+  }, [url]); // Rerun this effect only if the URL changes.
 
-  // Render error state with explicit error message
+  // Render logic:
   if (error) {
-    return <div className="pdf-loader-error">Error loading PDF: {error}</div>;
+    // 1. If there's an error, display it.
+    return <div style={{ color: "red", padding: "20px" }}>{error}</div>;
   }
 
-  // Render loading state
-  if (loading || !pdfDocument) {
+  if (!pdfDocument) {
+    // 2. If the document isn't loaded yet, show the loading indicator.
     return beforeLoad;
   }
 
-  // Render children with the loaded PDF document
+  // 3. If everything is successful, call the children render prop with the document.
   return children(pdfDocument);
-};
+}
 
 export default PdfLoader;
