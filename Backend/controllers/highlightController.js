@@ -1,107 +1,83 @@
-const Highlight = require("../models/highlightModel");
-const PdfFile = require("../models/pdfFileModel");
+const Highlight = require('../models/highlightModel');
+const PdfFile = require('../models/pdfFileModel');
 
 const saveHighlight = async (req, res) => {
   try {
-    const { content, position, pageNumber, pdfUuid, timestamp } = req.body;
-
+    console.log('=== HIGHLIGHT SAVE REQUEST ===');
+    console.log('Request body:', JSON.stringify(req.body, null, 2));
+    console.log('User ID:', req.user?._id);
+    console.log('Headers:', req.headers);
+    
+    const { text, position, pageNumber, pdfUuid } = req.body;
+    
     // Validate required fields
-    if (!position || !pageNumber || !pdfUuid) {
-      return res.status(400).json({
-        error: "Missing required fields",
-        details: {
-          position: !position,
-          pageNumber: !pageNumber,
-          pdfUuid: !pdfUuid,
-        },
-      });
+    if (!text && !position) {
+      console.log('Missing required fields: text or position');
+      return res.status(400).send('Missing required fields: text or position');
     }
-
-    // Validate position object structure
-    if (
-      !position.boundingRect ||
-      !position.rects ||
-      !Array.isArray(position.rects)
-    ) {
-      return res.status(400).json({
-        error: "Invalid position structure",
-        details: "Position must include boundingRect and rects array",
-      });
+    
+    if (!pdfUuid) {
+      console.log('Missing required field: pdfUuid');
+      return res.status(400).send('Missing required field: pdfUuid');
     }
-
+    
+    console.log('Looking for PDF file with uuid:', pdfUuid);
     const pdfFile = await PdfFile.findOne({ uuid: pdfUuid });
+
     if (!pdfFile) {
-      return res.status(404).json({
-        error: "PDF file not found",
-        details: `No PDF found with UUID: ${pdfUuid}`,
-      });
+      console.log('PDF file not found for uuid:', pdfUuid);
+      return res.status(404).send('PDF file not found');
     }
 
-    // Create highlight with proper validation of content
+    console.log('Found PDF file:', pdfFile._id);
+    
     const highlightData = {
-      content: content || { text: "", image: null }, // Handle missing content
-      position,
-      pageNumber,
+      text: text || '',
+      position: position || {},
+      pageNumber: pageNumber || 1,
       user: req.user._id,
       pdfFile: pdfFile._id,
-      timestamp: timestamp || new Date().toISOString(),
     };
-
+    
+    console.log('Creating highlight with data:', highlightData);
     const newHighlight = new Highlight(highlightData);
     const savedHighlight = await newHighlight.save();
-
+    console.log('Highlight saved successfully:', savedHighlight);
     res.status(201).json(savedHighlight);
   } catch (error) {
-    console.error("Error saving highlight:", error);
-    res.status(500).json({
-      error: "Failed to save highlight",
-      details: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
-    });
+    console.error('=== HIGHLIGHT SAVE ERROR ===');
+    console.error('Error saving highlight:', error);
+    console.error('Error stack:', error.stack);
+    res.status(500).send(error.message);
   }
 };
 
 const getHighlightsForPdf = async (req, res) => {
   try {
+    console.log('=== GET HIGHLIGHTS REQUEST ===');
     const { pdfUuid } = req.params;
-
-    if (!pdfUuid) {
-      return res.status(400).json({
-        error: "Missing required parameter",
-        details: "pdfUuid is required",
-      });
-    }
-
+    console.log('Fetching highlights for PDF uuid:', pdfUuid);
+    console.log('User ID:', req.user?._id);
+    
     const pdfFile = await PdfFile.findOne({ uuid: pdfUuid });
+
     if (!pdfFile) {
-      return res.status(404).json({
-        error: "PDF file not found",
-        details: `No PDF found with UUID: ${pdfUuid}`,
-      });
+      console.log('PDF file not found for uuid:', pdfUuid);
+      return res.status(404).send('PDF file not found');
     }
 
+    console.log('Found PDF file for highlights:', pdfFile._id);
     const highlights = await Highlight.find({
       pdfFile: pdfFile._id,
       user: req.user._id,
-    })
-      .sort({ timestamp: -1 }) // Sort by newest first
-      .lean(); // Convert to plain JavaScript objects for better performance
-
-    // Ensure all highlights have the required structure
-    const sanitizedHighlights = highlights.map((highlight) => ({
-      ...highlight,
-      content: highlight.content || { text: "", image: null },
-      timestamp: highlight.timestamp || new Date().toISOString(),
-    }));
-
-    res.json(sanitizedHighlights);
-  } catch (error) {
-    console.error("Error fetching highlights:", error);
-    res.status(500).json({
-      error: "Failed to fetch highlights",
-      details: error.message,
-      stack: process.env.NODE_ENV === "development" ? error.stack : undefined,
     });
+
+    console.log('Found highlights:', highlights.length);
+    res.json(highlights);
+  } catch (error) {
+    console.error('=== GET HIGHLIGHTS ERROR ===');
+    console.error('Error fetching highlights:', error);
+    res.status(500).send(error.message);
   }
 };
 

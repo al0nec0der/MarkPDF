@@ -2,12 +2,13 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { pdfjs } from "react-pdf";
 import { PdfHighlighter } from "react-pdf-highlighter";
+import PdfLoader from "../components/PdfLoader";
 import { getFileByUuid, saveHighlight, getHighlights } from "../services/api";
 import "react-pdf-highlighter/dist/style.css";
 import "../styles/pdf-highlighter.css";
 
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+// New, corrected code
+pdfjs.GlobalWorkerOptions.workerSrc = `/pdf.worker.min.mjs`;
 function ViewerPage() {
   const { pdfUuid } = useParams();
   const navigate = useNavigate();
@@ -19,7 +20,6 @@ function ViewerPage() {
   const [error, setError] = useState(null);
   const [scale, setScale] = useState(1.0);
   const [highlights, setHighlights] = useState([]);
-  const [pdfDocument, setPdfDocument] = useState(null);
   const [selectedHighlight, setSelectedHighlight] = useState(null);
   const containerRef = useRef(null);
   const scrollContainerRef = useRef(null);
@@ -46,11 +46,16 @@ function ViewerPage() {
   const addHighlight = useCallback(
     async (highlight) => {
       try {
-        const savedHighlight = await saveHighlight({
-          ...highlight,
+        // Extract the required data from the highlight object
+        const highlightData = {
+          text: highlight.content?.text || '',
+          position: highlight.position,
+          pageNumber: highlight.position.pageNumber,
           pdfUuid,
           timestamp: new Date().toISOString(),
-        });
+        };
+        
+        const savedHighlight = await saveHighlight(highlightData);
         setHighlights((prev) => [...prev, savedHighlight]);
         setSelectedHighlight(savedHighlight);
       } catch (error) {
@@ -100,77 +105,6 @@ function ViewerPage() {
     };
     fetchPdf();
   }, [pdfUuid]);
-
-  // Load PDF document
-  useEffect(() => {
-    let isMounted = true;
-    let currentPdfDoc = null;
-    let loadingTask = null;
-
-    const loadPdfDocument = async () => {
-      if (!pdfUrl) return;
-
-      try {
-        // Cancel any existing loading task
-        if (loadingTask) {
-          loadingTask.destroy();
-        }
-
-        console.log("Loading PDF from URL:", pdfUrl);
-
-        // Create new loading task
-        loadingTask = pdfjs.getDocument({
-          url: pdfUrl,
-          verbosity: 1, // Increase verbosity for debugging
-          cMapUrl: `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/cmaps/`,
-          cMapPacked: true,
-          enableXfa: true,
-          disableAutoFetch: false,
-          disableStream: false,
-        });
-
-        console.log("PDF loading task created");
-        const pdfDoc = await loadingTask.promise;
-        console.log("PDF document loaded:", pdfDoc.numPages, "pages");
-
-        // Verify the PDF has loaded properly
-        if (!pdfDoc || pdfDoc.numPages === 0) {
-          throw new Error("PDF document loaded but contains no pages");
-        }
-
-        currentPdfDoc = pdfDoc;
-
-        if (isMounted) {
-          console.log("Setting PDF document in state");
-          setPdfDocument(pdfDoc);
-          setError(null); // Clear any previous errors
-        }
-      } catch (error) {
-        if (isMounted) {
-          if (error.name === "RenderingCancelledException") {
-            console.warn("PDF rendering cancelled, retrying...");
-            // Add a small delay before retrying
-            setTimeout(loadPdfDocument, 100);
-          } else {
-            console.error("Failed to load PDF document", error);
-            setError(`Failed to load PDF document: ${error.message}`);
-          }
-        }
-      }
-    };
-
-    loadPdfDocument();
-
-    return () => {
-      isMounted = false;
-      if (loadingTask) {
-        loadingTask.destroy();
-      }
-      if (currentPdfDoc) {
-        currentPdfDoc.destroy();
-      }
-    };
-  }, [pdfUrl]);
 
   // Save scroll position before zoom change
   useEffect(() => {
@@ -418,49 +352,57 @@ function ViewerPage() {
             maxWidth: "1200px",
           }}
         >
-          {pdfDocument && (
-            <div
-              ref={scrollContainerRef}
-              style={{
-                position: "relative",
-                width: "100%",
-                height: "100%",
-                overflow: "auto",
-                backgroundColor: "#fafafa",
+          {pdfUrl && (
+            <PdfLoader
+              url={pdfUrl}
+              beforeLoad={
+                <div className="flex items-center justify-center h-full">
+                  Loading PDF...
+                </div>
+              }
+              onError={(errorMessage) => {
+                console.error("PDF loading error:", errorMessage);
+                setError(errorMessage);
               }}
             >
-              <div
-                style={{
-                  position: "relative",
-                  display: "flex",
-                  justifyContent: "center",
-                  transform: `scale(${scale})`,
-                  transformOrigin: "center top",
-                  padding: "20px",
-                }}
-              >
-                <PdfHighlighter
-                  pdfDocument={pdfDocument}
-                  enableAreaSelection={enableAreaSelection}
-                  highlights={Array.isArray(highlights) ? highlights : []}
-                  onSelectionFinished={addHighlight}
-                  highlightTransform={highlightTransform}
-                  scrollRef={scrollRef}
-                  pdfScaleValue="page-width"
-                  onDocumentReady={() => {
-                    console.log("PDF document ready");
+              {(pdfDocument) => (
+                <div 
+                  ref={scrollContainerRef}
+                  style={{ 
+                    position: 'relative',
+                    width: '100%',
+                    height: '100%',
+                    overflow: 'auto'
                   }}
-                  onDocumentError={(error) => {
-                    console.error("PDF document error:", error);
-                    setError(`Failed to render PDF: ${error.message}`);
-                  }}
-                  renderingCancelled={(error) => {
-                    console.warn("Rendering cancelled:", error);
-                    return true; // Allow retry
-                  }}
-                />
-              </div>
-            </div>
+                >
+                  <div
+                    style={{
+                      width: `${100 * scale}%`,
+                      height: `${100 * scale}%`,
+                      transform: `scale(${1})`,
+                      transformOrigin: 'top left'
+                    }}
+                  >
+                    {pdfDocument ? (
+                      <PdfHighlighter
+                        pdfDocument={pdfDocument}
+                        highlights={Array.isArray(highlights) ? highlights : []}
+                        onSelectionFinished={addHighlight}
+                        highlightTransform={highlightTransform}
+                        enableAreaSelection={enableAreaSelection}
+                        onScrollChange={() => {}}
+                        scrollRef={scrollRef}
+                        pdfScaleValue="1"
+                      />
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        Loading PDF content...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </PdfLoader>
           )}
         </div>
       </div>
