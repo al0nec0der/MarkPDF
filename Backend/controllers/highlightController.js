@@ -35,7 +35,8 @@ const saveHighlight = async (req, res) => {
     const commentText = comment && comment.text ? comment.text : "";
 
     const newHighlight = new Highlight({
-      text: commentText || highlightText, // Save comment if exists, otherwise save highlight text
+      text: highlightText, // Always save the highlighted text
+      comment: commentText, // Save the comment separately
       position: position,
       pageNumber: position.pageNumber,
       user: req.user._id,
@@ -90,9 +91,9 @@ const getHighlightsForPdf = async (req, res) => {
     // Convert the raw database documents into the format the frontend library needs.
     const formattedHighlights = highlightsFromDb.map((dbHighlight) => ({
       id: dbHighlight._id.toString(),
-      content: { text: dbHighlight.text }, // For now, we send the same text in content
+      content: { text: dbHighlight.text }, // Send the highlighted text in content
       position: dbHighlight.position,
-      comment: { text: dbHighlight.text, emoji: "" }, // Create a comment object for the popup
+      comment: { text: dbHighlight.comment, emoji: "" }, // Send the comment text in comment
     }));
 
     res.json(formattedHighlights);

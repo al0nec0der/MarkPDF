@@ -4,7 +4,6 @@ import { pdfjs } from "react-pdf";
 import { PdfHighlighter, PdfLoader } from "react-pdf-highlighter";
 import Tip from "../components/Tip";
 import { getFileByUuid, getHighlights, saveHighlight } from "../services/api";
-import "react-pdf-highlighter/dist/esm/style/PdfHighlighter.css";
 
 // Configure the PDF.js worker locally
 pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
@@ -86,7 +85,7 @@ function ViewerPage() {
             setTip(highlight, (highlight) => (
               <div className="Highlight__popup">
                 <div className="Highlight__popup-content">
-                  {highlight.content?.text || "Area highlight"}
+                  {highlight.comment?.text || highlight.content?.text || "Area highlight"}
                 </div>
                 {highlight.content?.image && (
                   <img
@@ -166,9 +165,12 @@ function ViewerPage() {
                         position,
                         content: {
                           ...content,
-                          text: comment.text || content?.text || ''
+                          text: content?.text || ''
                         },
-                        comment
+                        comment: {
+                          text: comment.text || '',
+                          emoji: ''
+                        }
                       };
                       
                       // Call the addHighlight function

@@ -5,6 +5,10 @@ const highlightSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  comment: {
+    type: String,
+    default: "",
+  },
   position: {
     type: Object,
     required: true,
