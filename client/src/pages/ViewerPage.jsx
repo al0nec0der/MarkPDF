@@ -58,64 +58,6 @@ function ViewerPage() {
     }
   }, [pdfUuid]);
 
-  // Highlight transform function
-  const highlightTransform = useCallback(
-    (
-      highlight,
-      index,
-      setTip,
-      hideTip,
-      viewportToScaled,
-      screenshot,
-      isScrolledTo
-    ) => {
-      const component = (
-        <div
-          className="PdfHighlighter__highlight"
-          style={{
-            backgroundColor: isScrolledTo
-              ? "rgb(255, 226, 143)"
-              : "rgba(255, 226, 143, 0.4)",
-            border: "1px solid rgba(0, 0, 0, 0.1)",
-            borderRadius: "4px",
-            cursor: "pointer",
-            transition: "background-color 0.3s",
-          }}
-          onMouseOver={() => {
-            setTip(highlight, (highlight) => (
-              <div className="Highlight__popup">
-                <div className="Highlight__popup-content">
-                  {highlight.comment?.text || highlight.content?.text || "Area highlight"}
-                </div>
-                {highlight.content?.image && (
-                  <img
-                    src={highlight.content.image}
-                    alt="Highlight screenshot"
-                    style={{ maxWidth: "200px", maxHeight: "200px" }}
-                  />
-                )}
-                <div className="Highlight__popup-timestamp">
-                  {highlight.timestamp
-                    ? new Date(highlight.timestamp).toLocaleString()
-                    : ""}
-                </div>
-              </div>
-            ));
-          }}
-          onMouseOut={hideTip}
-        />
-      );
-
-      return component;
-    },
-    []
-  );
-
-  // Enable area selection
-  const enableAreaSelection = useCallback((event) => {
-    return event.altKey;
-  }, []);
-
   // Scroll ref
   const scrollRef = useCallback(() => {
     return window;
@@ -156,7 +98,6 @@ function ViewerPage() {
               <PdfHighlighter
                 pdfDocument={pdfDocument}
                 highlights={highlights}
-                highlightTransform={highlightTransform}
                 onSelectionFinished={(position, content, hideTipAndSelection, transformSelection) => (
                   <Tip
                     onConfirm={(comment) => {
@@ -181,7 +122,6 @@ function ViewerPage() {
                     }}
                   />
                 )}
-                enableAreaSelection={enableAreaSelection}
                 scrollRef={scrollRef}
               />
             )}
