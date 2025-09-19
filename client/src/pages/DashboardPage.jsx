@@ -62,16 +62,16 @@ function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
+    <div className="min-h-screen bg-[#181818] text-gray-200">
       {/* Header */}
-      <header className="bg-white border-b shadow-sm">
+      <header className="bg-[#202020] border-b border-gray-700 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="bg-indigo-600 text-white font-bold px-3 py-1 rounded">
               MP
             </div>
             <h1 className="text-xl font-semibold">MarkPDF</h1>
-            <span className="text-sm text-slate-500">Dashboard</span>
+            <span className="text-sm text-gray-400">Dashboard</span>
           </div>
 
           <div className="flex items-center gap-3">
@@ -89,7 +89,7 @@ function DashboardPage() {
       <main className="max-w-6xl mx-auto px-4 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Sidebar / Actions */}
-          <aside className="lg:col-span-1 bg-white p-4 rounded-lg shadow-sm">
+          <aside className="lg:col-span-1 bg-[#202020] p-4 rounded-lg shadow-sm border border-gray-700">
             <h2 className="text-lg font-semibold mb-3">Actions</h2>
             <div className="space-y-3">
               <label className="block">
@@ -98,7 +98,7 @@ function DashboardPage() {
                   type="file"
                   accept="application/pdf"
                   onChange={handleFileChange}
-                  className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100"
+                  className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:bg-indigo-900 file:text-indigo-200 hover:file:bg-indigo-800"
                 />
               </label>
 
@@ -112,7 +112,7 @@ function DashboardPage() {
 
               <Link
                 to="/register"
-                className="block text-center text-sm text-slate-600 hover:underline"
+                className="block text-center text-sm text-gray-400 hover:text-gray-200 hover:underline"
               >
                 Manage account
               </Link>
@@ -123,29 +123,29 @@ function DashboardPage() {
           <section className="lg:col-span-3">
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-2xl font-semibold">Your Files</h2>
-              <div className="text-sm text-slate-500">
+              <div className="text-sm text-gray-400">
                 {files.length} file(s)
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {loading && files.length === 0 ? (
-                <div className="col-span-full text-center py-8 text-slate-500">
+                <div className="col-span-full text-center py-8 text-gray-400">
                   Loading files...
                 </div>
               ) : files.length === 0 ? (
-                <div className="col-span-full bg-white p-6 rounded shadow-sm text-center text-slate-600">
+                <div className="col-span-full bg-[#202020] p-6 rounded shadow-sm text-center text-gray-300 border border-gray-700">
                   No files uploaded yet. Use the upload action to add PDFs.
                 </div>
               ) : (
                 files.map((file) => (
                   <article
                     key={file.uuid}
-                    className="bg-white p-4 rounded-lg shadow-sm"
+                    className="bg-[#202020] p-4 rounded-lg shadow-sm border border-gray-700"
                   >
                     <div className="flex items-start justify-between">
                       <div>
-                        <h3 className="text-lg font-medium text-slate-800">
+                        <h3 className="text-lg font-medium text-gray-100">
                           <Link
                             to={`/pdf/${file.uuid}`}
                             className="hover:underline"
@@ -153,7 +153,7 @@ function DashboardPage() {
                             {file.originalname}
                           </Link>
                         </h3>
-                        <p className="text-sm text-slate-500 mt-1">
+                        <p className="text-sm text-gray-400 mt-1">
                           {new Date(file.createdAt).toLocaleString()}
                         </p>
                       </div>
@@ -161,7 +161,7 @@ function DashboardPage() {
                       <div className="flex items-center gap-2">
                         <Link
                           to={`/pdf/${file.uuid}`}
-                          className="text-sm px-3 py-1 rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                          className="text-sm px-3 py-1 rounded bg-indigo-900 text-indigo-200 hover:bg-indigo-800"
                         >
                           Open
                         </Link>
@@ -176,15 +176,15 @@ function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 bg-white border-t">
-        <div className="max-w-6xl mx-auto px-4 py-4 text-sm text-slate-500 flex items-center justify-between">
+      <footer className="mt-12 bg-[#202020] border-t border-gray-700">
+        <div className="max-w-6xl mx-auto px-4 py-4 text-sm text-gray-400 flex items-center justify-between">
           <div>© {new Date().getFullYear()} MarkPDF</div>
           <div>
-            <a href="#" className="hover:underline">
+            <a href="#" className="hover:text-gray-200 hover:underline">
               Privacy
             </a>
             <span className="mx-2">•</span>
-            <a href="#" className="hover:underline">
+            <a href="#" className="hover:text-gray-200 hover:underline">
               Terms
             </a>
           </div>

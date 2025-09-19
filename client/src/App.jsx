@@ -9,7 +9,7 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 function App() {
   return (
-    <main>
+    <div className="bg-[#181818]">
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -42,7 +42,7 @@ function App() {
           }
         />
       </Routes>
-    </main>
+    </div>
   );
 }
 

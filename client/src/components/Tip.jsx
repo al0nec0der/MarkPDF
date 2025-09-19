@@ -22,7 +22,7 @@ const Tip = ({ onConfirm }) => {
     return (
       <button
         onClick={handleAddHighlightClick}
-        className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+        className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
       >
         Add Highlight
       </button>
@@ -32,26 +32,26 @@ const Tip = ({ onConfirm }) => {
   return (
     <form 
       onSubmit={handleSubmit}
-      className="bg-white p-3 rounded shadow-lg border border-gray-200 w-64"
+      className="bg-[#202020] p-3 rounded shadow-lg border border-gray-700 w-64 max-w-full"
     >
       <textarea
         value={comment}
         onChange={(e) => setComment(e.target.value)}
         placeholder="Add your comment..."
-        className="w-full p-2 border border-gray-300 rounded resize-none focus:outline-none focus:ring-2 focus:ring-blue-300"
+        className="w-full p-2 border border-gray-600 rounded bg-[#2d2d2d] text-white resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
         rows="3"
       />
       <div className="flex justify-end gap-2 mt-2">
         <button
           type="button"
           onClick={handleCancel}
-          className="px-3 py-1 text-gray-600 hover:text-gray-800 focus:outline-none"
+          className="px-3 py-1 text-gray-300 hover:text-gray-100 focus:outline-none"
         >
           Cancel
         </button>
         <button
           type="submit"
-          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300"
+          className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Save
         </button>

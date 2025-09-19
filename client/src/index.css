@@ -7,6 +7,76 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+body {
+  background: #181818;
+  overflow-x: hidden;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
 #root {
-  margin: auto;
+  margin: 0;
+  background: #181818;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+  min-width: 0;
+}
+
+/* Force highlight visibility */
+.PdfHighlighter__highlight,
+.Highlight__part {
+  background: rgba(255,226,143,0.8) !important;
+}
+
+/* Ensure PDF viewer content doesn't cause horizontal overflow */
+.PdfHighlighter {
+  overflow-x: hidden;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Ensure PDF pages are centered and properly sized */
+.react-pdf__Page {
+  display: flex;
+  justify-content: center;
+  margin: 0 auto;
+  overflow-x: hidden;
+  background: white;
+  min-width: 0;
+}
+
+.react-pdf__Page__canvas {
+  max-width: 100%;
+  height: auto !important;
+  overflow-x: hidden;
+}
+
+/* Prevent horizontal scrolling on the document */
+.ReactPDF__Document {
+  overflow-x: hidden;
+  min-width: 0;
+}
+
+/* Viewer panel styling */
+.viewer {
+  display: flex;
+  justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Ensure no horizontal overflow on any element */
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root, .App {
+  max-width: 100%;
+  overflow-x: hidden;
+  min-width: 0;
 }

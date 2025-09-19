@@ -37,13 +37,13 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-      <Card className="w-full max-w-md shadow-2xl hover:shadow-3xl transition-all duration-300 backdrop-blur-sm bg-white/95">
+    <div className="flex items-center justify-center min-h-screen bg-[#181818] p-4">
+      <Card className="w-full max-w-md shadow-2xl hover:shadow-3xl transition-all duration-300 backdrop-blur-sm bg-[#202020] border border-gray-700">
         <CardHeader className="space-y-2 pb-6">
-          <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+          <CardTitle className="text-3xl font-bold text-center bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
             Welcome Back
           </CardTitle>
-          <CardDescription className="text-center text-gray-600 text-lg">
+          <CardDescription className="text-center text-gray-300 text-lg">
             Sign in to your account
           </CardDescription>
         </CardHeader>
@@ -52,13 +52,13 @@ function LoginPage() {
             {error && (
               <Alert
                 variant="destructive"
-                className="bg-red-50 text-red-900 border border-red-200 rounded-lg"
+                className="bg-red-900/30 text-red-200 border border-red-800/50 rounded-lg"
               >
-                <AlertCircle className="h-5 w-5 text-red-600" />
-                <AlertTitle className="text-red-800 font-semibold">
+                <AlertCircle className="h-5 w-5 text-red-400" />
+                <AlertTitle className="text-red-300 font-semibold">
                   Error
                 </AlertTitle>
-                <AlertDescription className="text-red-700">
+                <AlertDescription className="text-red-200">
                   {error}
                 </AlertDescription>
               </Alert>
@@ -66,7 +66,7 @@ function LoginPage() {
             <div className="space-y-2">
               <Label
                 htmlFor="email"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-gray-300"
               >
                 Email
               </Label>
@@ -77,12 +77,13 @@ function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="bg-[#2d2d2d] border-gray-600 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div className="space-y-2">
               <Label
                 htmlFor="password"
-                className="text-sm font-medium text-gray-700"
+                className="text-sm font-medium text-gray-300"
               >
                 Password
               </Label>
@@ -93,6 +94,7 @@ function LoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                className="bg-[#2d2d2d] border-gray-600 text-white placeholder-gray-400 focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <Button
@@ -130,10 +132,10 @@ function LoginPage() {
             </Button>
           </form>
           <div className="mt-4 text-center text-sm">
-            <span className="text-gray-600">Don't have an account? </span>
+            <span className="text-gray-400">Don't have an account? </span>
             <a
               href="/register"
-              className="text-blue-600 hover:text-blue-800 font-medium transition-colors"
+              className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
             >
               Sign up
             </a>
